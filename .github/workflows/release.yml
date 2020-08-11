@@ -1,19 +1,15 @@
-name: Check Pull Request
+name: Build release
 
-on: [pull_request]
+on: [release]
 
 jobs:
-  check_pull_request:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ./.github/actions/test
-        with:
-          who-to-greet: 'Developer'
-
-      # keep this part in sync with release.yml
+      # keep this part in sync with check-pull-request.yml
 
       - name: Use Node.js
         uses: actions/setup-node@v1
@@ -48,12 +44,13 @@ jobs:
           steps.cache-yarn-cache.outputs.cache-hit != 'true' ||
           steps.cache-node-modules.outputs.cache-hit != 'true'
 
-      # END of keep this part in sync with release.yml
+      # END of keep this part in sync with check-pull-request.yml
 
       - name: lint/build
         run: yarn build
 
-      - name: test
-        run: yarn test:nowatch
-        env:
-          CI: true
+      - name: Upload build
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: build/
